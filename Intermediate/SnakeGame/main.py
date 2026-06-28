@@ -59,15 +59,4 @@ while game_is_on:
 
 
 
-## Detect Collision with the Food
-
-## Create a Scoreboard
-
-## Detect Collision with Wall
-
-## Detect Collision with tail
-
-
-
-
 my_screen.exitonclick()
