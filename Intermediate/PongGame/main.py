@@ -1,4 +1,4 @@
-from turtle import Turtle, Screen
+from turtle import Screen
 from players import Players
 from ball import Ball
 from score import Score
@@ -36,6 +36,7 @@ score = Score()
 
 
 game_is_on = True
+
 while game_is_on:
     screen.update()
     time.sleep(ball.move_speed)
@@ -60,7 +61,6 @@ while game_is_on:
 
     score.update_score()
         
-
 
 
 screen.exitonclick()
