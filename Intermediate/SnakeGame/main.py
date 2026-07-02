@@ -3,7 +3,7 @@ from snake import Snake
 from food import Food
 from score import Score
 import time
-import random
+
 
 
 ### 1. Setting up the screen
@@ -29,7 +29,7 @@ my_screen.onkey(snake.right, "Right")
 ## Move the snake body
 game_is_on = True
 while game_is_on:
-    score.show_board()
+    score.update_scoreboard()
     my_screen.update()
     time.sleep(0.1)
 
@@ -37,19 +37,19 @@ while game_is_on:
     x_cor = snake.head.xcor()
     y_cor = snake.head.ycor()
     if x_cor > 280 or x_cor < -290 or y_cor > 280 or y_cor < -280:
-        game_is_on = False
-        score.game_over()
+        score.reset()
+        snake.reset()
     
     ## Detecting collision with the food
     if snake.head.distance(food) < 15:
         food.refresh()
-        score.update_score()
+        score.increase_score()
         snake.extend()
     
     ## Detecting collision with the tail
     if snake.contact_with_tail():
-        game_is_on = False
-        score.game_over()
+        score.reset()
+        snake.reset()
 
 
     snake.move()
