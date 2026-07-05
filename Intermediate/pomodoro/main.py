@@ -6,16 +6,16 @@ GREEN = "#9bdeac"
 YELLOW = "#f7f5dd"
 FONT_NAME = "Courier"
 BUTTON_COLOR = "#F99D38"
-WORK_MIN = 0
-SHORT_BREAK_MIN = 0
-LONG_BREAK_MIN = 1
+WORK_MIN = 25
+SHORT_BREAK_MIN = 5
+LONG_BREAK_MIN = 25
 XCOR = 150
 YCOR = 125
 
 
 # ---------------------------- TIMER RESET ------------------------------- # 
 def reset(canvas):
-    canvas.itemconfig(prev_time, text=f"{WORK_MIN}:00") 
+    canvas.itemconfig(prev_time, text="00:00") 
     stop_event()
     
 
@@ -24,22 +24,39 @@ def stop_event():
     if timer_id is not None:
         window.after_cancel(timer_id)
 
-# ---------------------------- TIMER MECHANISM ------------------------------- # 
+def start_event():
+    stop_event()
+    canvas.itemconfig(prev_time, text="00:00") 
+    session_period()
 
+
+# ---------------------------- TIMER MECHANISM ------------------------------- # 
 
 
 
 
 # ---------------------------- COUNTDOWN MECHANISM ------------------------------- # 
 def count_down(minutes, seconds):
-    global timer_id, time_status
+    global timer_id, time_status, session_count
     #Displaying the time
     current_time = f"{minutes:02d}:{seconds:02d}"
     canvas.itemconfig(prev_time, text=current_time)
 
     # this is when the time ends
     if minutes == 0 and seconds == 0:
-        time_status = True
+        if time_status == "work":
+            print("calling work period again")
+            session_period()
+        elif time_status == "break":
+            print("calling break period")
+            session_count -= 1
+            break_period()
+        elif time_status == "longer_break":
+            print("calling longer break")
+            long_break_period()
+        else:
+            stop_event()
+        return
     # decreasing the seconds
     elif seconds > 0:
         timer_id = window.after(1000, count_down, minutes, seconds - 1)
@@ -54,33 +71,28 @@ def count_down(minutes, seconds):
 def session_period():
     global time_status
     headline_label.config(text="Work")
-    count_down(WORK_MIN, 30)
-    if time_status:
-        print("calling break period")
-        break_period()
-        time_status = False
+    count_down(WORK_MIN, 0)
+    time_status = "break"
 
 
 ## short break time
 def break_period():
     global session_count, time_status
-    headline_label.config(text="Break")
-    count_down(SHORT_BREAK_MIN, 30)
-    if time_status and session_count > 0:
-        session_count -= 1
-        session_period()
-        time_status = False
+    headline_label.config(text="Break", fg=PINK)
+    if session_count > 0:
+        time_status = "work"
     else:
-        long_break_period()
-        time_status = False
+        time_status = "longer_break"
+    print(session_count, time_status)
+    count_down(SHORT_BREAK_MIN, 0)
+
 
 ## long break time
 def long_break_period():
     global time_status
-    headline_label.config(text="Long Break")
+    headline_label.config(text="Long Break", fg=RED)
     count_down(LONG_BREAK_MIN, 0)
-    if time_status:
-        stop_event()
+    time_status = "over"
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
@@ -91,8 +103,8 @@ window.config(bg=YELLOW)
 # this variable controls the window events
 timer_id = None
 # this variable keeps track of the sessions
-session_count = 1
-time_status = False
+session_count = 5
+time_status = None
 
 
 # HEADLINE Label
@@ -110,13 +122,13 @@ prev_time = canvas.create_text(XCOR, YCOR, text=f"{WORK_MIN}:00", font=(FONT_NAM
 
 
 # START button
-start_button = Button(text="Start", bg="lightblue", highlightbackground=YELLOW, command=session_period)
+start_button = Button(text="Start", bg="lightblue", highlightbackground=YELLOW, command=start_event)
 start_button.place(relx=0.2, rely=0.8, anchor="w")
 
 
 # Reset Button
 reset_button = Button(text="Reset", bg="lightblue", highlightbackground=YELLOW, command=lambda: reset(canvas))
 reset_button.place(relx=0.8, rely=0.8, anchor="e")
-    
+
 
 window.mainloop()
