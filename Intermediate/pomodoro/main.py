@@ -16,6 +16,7 @@ YCOR = 125
 # ---------------------------- TIMER RESET ------------------------------- # 
 def reset(canvas):
     canvas.itemconfig(prev_time, text="00:00") 
+    headline_label.config(text="Timer")
     stop_event()
     
 
