@@ -54,4 +54,4 @@ password_manager/
 
 ## Notes
 
-⚠️ Passwords are currently stored in **plain text** in a local file. This project is for learning purposes — avoid using it to store real, sensitive credentials until encryption is added.
+⚠️ Passwords are currently stored in **plain text** in a local file. This project is for learning purposes — avoid using it to store real, sensitive credentials until encryption is added

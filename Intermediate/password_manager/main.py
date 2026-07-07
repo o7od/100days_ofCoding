@@ -6,10 +6,6 @@ CANVAS_COLOR = "#70ccc3"
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
-def ask_user_confirmation():
-    return messagebox.askokcancel(title="Password Confirmation", message="Do you wish to proceed?")
-
-
 def save_password():
     website_name = website_entry.get().split()
     user_name = email_entry.get().split()
@@ -20,8 +16,8 @@ def save_password():
         messagebox.showwarning(title="Password Manager", message="Do not leave any spaces blank!")
         return
 
-
-    if ask_user_confirmation():
+    is_ok = messagebox.askokcancel(title=website_name, message=f"These are the details entered: \nEmail: {user_name}\nPassword: {password_name} \nIs it okay to save?")
+    if is_ok:
         # Deleting entry inputs
         website_entry.delete(0, END)
         email_entry.delete(0, END)
