@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from random_password import PasswordGenerator
+import pyperclip
 WINDOW_COLOR = "#c0fff9"
 CANVAS_COLOR = "#70ccc3"
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
@@ -31,6 +32,7 @@ def generate_password():
     new_password = password_generator.make_password()
     password_entry.delete(0, END)
     password_entry.insert(0, new_password)
+    pyperclip.copy(new_password)
 
 # ---------------------------- UI SETUP ------------------------------- #
 
