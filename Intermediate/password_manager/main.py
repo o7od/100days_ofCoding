@@ -60,15 +60,18 @@ def search_website():
         with open("password_data.json", "r") as data_file:
             # Read the data
             content = json.load(data_file)
-            email = content[website]["email"]
-            password = content[website]["password"]
     except FileNotFoundError:
         print("There is no record of your password saved")
     except KeyError:
         messagebox.showinfo(title=website, message=f"No information found under this email or website!")
     else:
-        text = f"Here is your password for {website}: \n{email}\n{password}"
-        messagebox.showinfo(title=website, message=text)
+        correct_email = content[website]["email"]
+        if email == correct_email:
+            password = content[website]["password"]
+            text = f"Here is your password for {website}: \n{email}\n{password}"
+            messagebox.showinfo(title=website, message=text)
+        else:
+            messagebox.showinfo(title=website, message=f"No information found under this email or website!")
 
 
 
@@ -121,7 +124,7 @@ generate_password_button.grid(column=2, row=3, sticky="n")
 add_button = Button(text="Add", width=33, highlightbackground=WINDOW_COLOR, highlightthickness=0, command=save_password)
 add_button.grid(column=1, row=4, columnspan=2)
 
-search_button = Button(text="Search", highlightbackground=WINDOW_COLOR, command=search_website)
+search_button = Button(text="Search", highlightbackground=WINDOW_COLOR, width=10, command=search_website)
 search_button.grid(column=2, row=1, sticky="w")
 
 
