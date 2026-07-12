@@ -1,0 +1,4 @@
+.env
+.vscode/
+stock_cache.sqlite
+__pycache__/
