@@ -1,39 +1,42 @@
 import requests
-from datetime import datetime, timedelta
 import requests_cache
 import os
 from dotenv import load_dotenv
 
-requests_cache.install_cache("flight_deals")
+#Loading environment variables from .env file
+load_dotenv()
+
+SERP_API_ENDPOINT = "https://serpapi.com/search"
+
 
 class Flights:
     """ This will be responsible for communication with google flights api"""
-    def __init__(self, departing_air: str):
-        load_dotenv()
+    def __init__(self):
         self.SERP_API = os.environ.get("SERP_API")
-        self.api_endpoint = "https://serpapi.com/search?engine=google_flights_deals"
-        # call get_outbound_date
-        self.get_outbound_date()
-        self.departure_airport = departing_air
-        self.parameters = {
-            "departure_id": self.departure_airport,
+        
+
+    def check_flights(self, origin_city_code, destination_city_code, from_time, to_time):
+        query = {
+            "engine": "google_flights",
+            "departure_id": origin_city_code,
+            "arrival_id": destination_city_code,
             "currency": "USD",
+            "type": "1",
+            "outbound_date": from_time.strftime("%Y-%m-%d"),
+            "return_date": to_time.strftime("%Y-%m-%d"),
             "api_key": self.SERP_API,
-            "outbound_date": self.outbound_date,
         }
 
-    def get_outbound_date(self):
-        current_date = datetime.now()
-        end_date = current_date + timedelta(30*6)
-        begin_time = str(current_date).split(" ")[0]
-        end_time = str(end_date).split(" ")[0]
-        self.outbound_date = f"{begin_time},{end_time}"
+        response = requests.get(url=SERP_API_ENDPOINT, params=query)
+
+        if response.status_code != 200:
+            print(f"check_flights() response code is {response.status_code}")
+            return None
+        
+        data = response.json()
+        if "error" in data:
+            print(f"API error: {data['error']}")
+            return None
+        return data
 
 
-    def find_deals(self):
-        response = requests.get(url=self.api_endpoint, params=self.parameters)
-        source: str = 'CACHE' if getattr(response, 'from_cache', False) else 'API'
-        print(f"Source: {source}")
-        if response.status_code == 200:
-            return response.json()["deals"]
-        return "couldn't fetch anything"

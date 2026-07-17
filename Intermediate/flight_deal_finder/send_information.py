@@ -1,5 +1,4 @@
 # This will handle api requests to sending sms messages (VONAGE API)
-import requests
 import os
 from dotenv import load_dotenv
 from vonage import Auth, Vonage

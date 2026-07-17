@@ -1,41 +1,54 @@
-from Sheety import Sheety_api
+from data_manager import DataManager
 from IATA_code import city_to_iata
 from flights_finder import Flights
+from flight_data import find_cheapest_flight
 from send_information import Sms_sender
+from pprint import pprint
+import requests_cache
+from datetime import datetime, timedelta
 
+requests_cache.install_cache(
+    "flight_cache",
+    urls_expire_after={
+        "*.sheety.co*": requests_cache.DO_NOT_CACHE,
+        "*": 3600,
+    }
+)
 
-### What do we need ###
-# 1. Searching existing data from sheety api
-# 2. Searching google flights api to get all of the prices from now until 6 months 
-# 3. Comparing it with existing data 
-# 4. Sending an sms message 
+################# Talk to Sheety #################
+data_manager = DataManager()
+sheet_data = data_manager.get_destination_data()
+pprint(sheet_data)
 
+################# Set the Dates #################
+tomorrow = datetime.now() + timedelta(days=1)
+six_months_from_now = datetime.now() + timedelta(days=(30*6))
 
-def find_cheapest_flight():
-    flight_deals = flight_finder.find_deals()
-    cheapest_price = 10000
-    for each_flight in flight_deals:
-        if cheapest_price > each_flight["price"]:
-            cheapest_price = each_flight["price"]
-            cheapest_flight = {
-                "city": each_flight["name"],
-                "price": each_flight["price"],
-                "airport_code": each_flight["arrival_airport_code"],
-                "outbound_date": each_flight["outbound_date"],
-            }
-    return cheapest_flight
+################# Do a FLIGHT SEARCH #################
+flight_search = Flights()
+ORIGIN_CITY_CODE = "JFK"
 
+################# SEARCHING ALL DESTINATIONS #################
+for destination in sheet_data:
+    pprint(f"Getting flights for {destination['city']}...")
+    flights = flight_search.check_flights(
+        origin_city_code=ORIGIN_CITY_CODE,
+        destination_city_code=destination["iataCode"],
+        from_time=tomorrow,
+        to_time=six_months_from_now,
+    )
 
-departure_id = input("Which city are you flying from? ").capitalize()
+    ##################### Showing the cheapest flight #####################
+    cheapest_flight = find_cheapest_flight(flights, return_date=six_months_from_now.strftime("%Y-%m-%d"))
+    pprint(f"{destination["city"]}: USD {cheapest_flight.price}")
 
-# Our objects to control sheety api, flight_deals finder and 
-data = Sheety_api()
-flight_finder = Flights(departing_air=city_to_iata[departure_id])
-msg = Sms_sender()
+    if cheapest_flight.price != "N/A" and cheapest_flight.price < destination["lowestPrice"]:
+        pprint(f"Lower price flight found to {destination["city"]}!")
+        data_manager.update_lowest_price(new_price=cheapest_flight.price, object_id=destination["id"])
 
-# Once we find the chepeast flight, we post it in our google sheets and send a SMS or whatsapp message
-cheap_flight = find_cheapest_flight()
-data.post(cheap_flight)
-text = f"We found a cheap flight to {cheap_flight['city']} for only ${cheap_flight['price']}. The flight is currently scheduled for {cheap_flight['outbound_date']}"
-msg.send_message(text)
-
+        ################### Sending an SMS message ###################
+        Sms_sender().send_message(
+            message=f"Low Price Alert! Only USD {cheapest_flight.price} to fly "
+                    f"from {cheapest_flight.origin_airport} to {cheapest_flight.destination_airport}, "
+                    f"on {cheapest_flight.out_date} until {cheapest_flight.return_date}."
+        )
