@@ -1,3 +1,4 @@
 .env
 private.key
 *.sqlite
+__pycache__
