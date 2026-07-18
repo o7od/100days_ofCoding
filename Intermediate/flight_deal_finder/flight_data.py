@@ -1,12 +1,13 @@
 
 
 class FlightData:
-    def __init__(self, price, departing_air, arrival_air, outdate, return_date):
+    def __init__(self, price, departing_air, arrival_air, outdate, return_date, stops):
         self.price = price
         self.origin_airport = departing_air
         self.destination_airport = arrival_air
         self.out_date = outdate
         self.return_date = return_date
+        self.stops = stops
 
 
 def find_cheapest_flight(data, return_date):
@@ -22,9 +23,10 @@ def find_cheapest_flight(data, return_date):
     origin = first_flight["flights"][0]["departure_airport"]["id"]
     destination = first_flight["flights"][-1]["arrival_airport"]["id"]
     out_date = first_flight["flights"][0]["departure_airport"]["time"].split(" ")[0]
+    nr_stops = len(first_flight["flights"]) - 1
 
     # Initalizing FlightData with the first flight for comparison
-    cheapest_flight = FlightData(lowest_price, origin, destination, out_date, return_date)
+    cheapest_flight = FlightData(lowest_price, origin, destination, out_date, return_date, nr_stops)
 
     for flight in all_flights:
         try:
@@ -37,7 +39,8 @@ def find_cheapest_flight(data, return_date):
             origin = first_flight["flights"][0]["departure_airport"]["id"]
             destination = first_flight["flights"][-1]["arrival_airport"]["id"]
             out_date = first_flight["flights"][0]["departure_airport"]["time"].split(" ")[0]
-            cheapest_flight = FlightData(lowest_price, origin, destination, out_date, return_date)
+            nr_stops = len(flight['flights']) - 1
+            cheapest_flight = FlightData(lowest_price, origin, destination, out_date, return_date, nr_stops)
             print(f"Lowest price to {destination} is USD {lowest_price}")
         
     return cheapest_flight

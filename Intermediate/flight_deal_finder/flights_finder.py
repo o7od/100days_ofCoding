@@ -1,5 +1,4 @@
 import requests
-import requests_cache
 import os
 from dotenv import load_dotenv
 
@@ -15,7 +14,7 @@ class Flights:
         self.SERP_API = os.environ.get("SERP_API")
         
 
-    def check_flights(self, origin_city_code, destination_city_code, from_time, to_time):
+    def check_flights(self, origin_city_code, destination_city_code, from_time, to_time, is_direct=True):
         query = {
             "engine": "google_flights",
             "departure_id": origin_city_code,
@@ -26,6 +25,9 @@ class Flights:
             "return_date": to_time.strftime("%Y-%m-%d"),
             "api_key": self.SERP_API,
         }
+
+        if is_direct:
+            query["stops"] = "1"
 
         response = requests.get(url=SERP_API_ENDPOINT, params=query)
 
