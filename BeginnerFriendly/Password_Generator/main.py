@@ -23,9 +23,9 @@ for i in range(numSymbols):
     password.append(symbols[random.randint(0, len(symbols) - 1)])
 
 
-# print(password)
-# random.shuffle(password)
-
+print(password)
+random.shuffle(password)
+print(password)
 
 
     
