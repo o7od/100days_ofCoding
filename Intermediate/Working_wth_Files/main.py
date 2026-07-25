@@ -18,3 +18,4 @@
 with open("../../../../../notes.txt", mode="r") as new_file:
     content = new_file.read()
     print(content)
+    

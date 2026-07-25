@@ -53,7 +53,7 @@ while True:
     button_big_cookie = driver.find_element(By.ID, "bigCookie")
     button_big_cookie.click()
 
-    # Checks every 5 seconds to buy boosters
+    # Checks every 'time_out' seconds to buy boosters
     if time.time() - start_time >= time_out:
         print("5 seconds has passed")
         for product in reversed(products):

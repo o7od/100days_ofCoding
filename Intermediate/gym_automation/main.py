@@ -15,7 +15,7 @@ def retry(func, retries=7, description=None):
     for i in range(retries):
         print(f"Trying {description}. Attempt {i+1}")
         try:
-            return func() # this will raise TimeOutException if the schedule-page doesn't appear within 2 seconds
+            return func() # this will raise TimeOutException if the schedule-page doesn't appear within 2 seconds or ElementClickInterceptedException
         except TimeoutException:
             if i == retries-1:
                 raise

@@ -130,6 +130,3 @@ def delete_pixel(username: str, graphID: str, x_user_token: str, date: str):
     response = requests.delete(url=url, headers=header)
     return response.status_code
 
-
-
-print(delete_pixel(username=USERNAME, graphID=GRAPH_ID, x_user_token=TOKEN, date="20260615"))

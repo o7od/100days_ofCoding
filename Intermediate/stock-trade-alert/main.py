@@ -1,5 +1,4 @@
 import requests
-from datetime import datetime, timedelta
 import requests_cache
 import os
 from dotenv import load_dotenv
@@ -8,10 +7,7 @@ from vonage_messages import WhatsappText
 
 requests_cache.install_cache('stock_cache')
 
-stock_apikey = "5QJSDXT3RD2DFU84"
-news_api = "6631d32c38a3439d89a3c74954aa9c98"
-vonage_api = "9ce1df75"
-
+load_dotenv()
 
 def calculate_change(new_value: float, old_value: float) -> float:
     """calculates the percent change from the given two inputs"""
@@ -32,10 +28,8 @@ def get_stock_info(url: str, params: dict) -> tuple:
     response = requests.get(url=url, params=params)
     response.raise_for_status()
     data: dict = response.json()["Time Series (Daily)"]
+    yesterday_date: str = response.json()["Meta Data"]["3. Last Refreshed"]
     source: str = 'CACHE' if getattr(response, 'from_cache', False) else 'API'
-
-    yesterday: str = str(datetime.today() - timedelta(days=1))
-    yesterday_date: str = yesterday.split(" ")[0]
     print("Source: " + source)
     return (data[yesterday_date]["1. open"], data[yesterday_date]["4. close"], yesterday_date)
 
@@ -57,7 +51,7 @@ STOCK_URL = f"https://www.alphavantage.co/query?"
 PARAMS = {
     "function": "TIME_SERIES_DAILY",
     "symbol": "TSLA",
-    "apikey": stock_apikey,
+    "apikey": os.environ.get("STOCK_API"),
 }
 
 data: tuple = get_stock_info(STOCK_URL, PARAMS)
@@ -67,7 +61,7 @@ change: str = calculate_change(float(data[0]), float(data[1]))
 NEWS_URL = "https://newsapi.org/v2/everything?"
 NEWS_PARAM = {
     "q": "tesla",
-    "apiKey": news_api,
+    "apiKey": os.environ.get("NEWS_API"),
     "from": data[2], 
     "to": data[2],
     "domains": "bbc.co.uk, techcrunch.com, engadget.com",
@@ -79,7 +73,6 @@ final_text = change + news
 # print(final_text)
 
 # 3. send an sms message 
-load_dotenv()
 
 client = Vonage(
     auth=Auth(

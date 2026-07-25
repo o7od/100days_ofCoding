@@ -41,7 +41,6 @@ playlist_id = ytmusic.create_playlist(
 
 print(f"Created a playlist:  {playlist_name}")
 
-
 # Searching for a song and getting their ids
 for song in song_names:
     try:
